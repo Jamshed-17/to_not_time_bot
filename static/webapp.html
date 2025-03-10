@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ввод кода</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            margin: 0;
+            padding: 20px;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid var(--tg-theme-hint-color, #cccccc);
+            border-radius: 5px;
+            font-size: 16px;
+            background-color: var(--tg-theme-secondary-bg-color, #f8f8f8);
+            color: var(--tg-theme-text-color, #000000);
+        }
+        button {
+            width: 80%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--tg-theme-button-color, #0088cc);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:active {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <h2>Введите код доступа</h2>
+    <input type="text" id="codeInput" placeholder="Введите код">
+    <button onclick="submitCode()">Отправить</button>
+
+    <script>
+        Telegram.WebApp.expand();
+        function submitCode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('user_id');
+            const code = document.getElementById('codeInput').value;
+
+            if (!code) {
+                alert("Введите код!");
+                return;
+            }
+
+            fetch("/submit_code", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ user_id: userId, code: code })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    alert("Код отправлен!");
+                    Telegram.WebApp.close();
+                } else {
+                    alert("Ошибка: " + data.message);
+                }
+            })
+            .catch(error => alert("Ошибка сети!"));
+        }
+    </script>
+</body>
+</html>
